@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cooking Recipe AI</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:radial-gradient(circle at top,#172554,#020617 55%);color:#e5e7eb;min-height:100vh}
+    .shell{width:min(1050px,94%);margin:30px auto;display:grid;grid-template-columns:280px 1fr;gap:18px}
+    .side,.chat{background:rgba(15,23,42,.82);border:1px solid rgba(148,163,184,.2);border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.25);backdrop-filter:blur(14px)}
+    .side{padding:24px}
+    .logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#8b5cf6,#06b6d4);font-size:25px;font-weight:800}
+    h1{font-size:25px;margin:18px 0 8px} .muted{color:#94a3b8;line-height:1.6;font-size:14px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+    .chip{border:1px solid #334155;border-radius:999px;padding:8px 10px;font-size:12px;color:#cbd5e1}
+    .chat{min-height:700px;display:flex;flex-direction:column;overflow:hidden}
+    .head{padding:20px 22px;border-bottom:1px solid rgba(148,163,184,.15);display:flex;align-items:center;gap:12px}
+    .status{width:10px;height:10px;background:#22c55e;border-radius:50%;box-shadow:0 0 14px #22c55e}
+    #messages{padding:22px;flex:1;overflow:auto;display:flex;flex-direction:column;gap:14px}
+    .msg{max-width:82%;padding:13px 16px;border-radius:18px;line-height:1.55;white-space:pre-wrap}
+    .bot{align-self:flex-start;background:#1e293b;border-bottom-left-radius:5px}
+    .user{align-self:flex-end;background:linear-gradient(135deg,#7c3aed,#0891b2);border-bottom-right-radius:5px}
+    .composer{display:flex;gap:10px;padding:16px;border-top:1px solid rgba(148,163,184,.15)}
+    input{flex:1;background:#020617;border:1px solid #334155;color:#fff;padding:15px 16px;border-radius:15px;outline:none}
+    button{border:0;border-radius:15px;padding:0 20px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);color:white;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    @media(max-width:800px){.shell{grid-template-columns:1fr}.side{display:none}.chat{min-height:90vh}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="logo">AI</div>
+    <h1>Cooking Recipe AI</h1>
+    <p class="muted">A focused AI assistant for Recipes, cooking techniques, ingredient substitutions, and meal ideas.</p>
+    <div class="chips">
+      <span class="chip">Gemini powered</span><span class="chip">Flask</span><span class="chip">Focused AI</span>
+    </div>
+  </aside>
+  <main class="chat">
+    <div class="head"><span class="status"></span><div><strong>Cooking Recipe AI</strong><div class="muted">Ready to help</div></div></div>
+    <div id="messages"><div class="msg bot">Hi! I'm Cooking Recipe AI. Ask me anything related to Recipes, cooking techniques, ingredient substitutions, and meal ideas.</div></div>
+    <form class="composer" id="form">
+      <input id="input" autocomplete="off" placeholder="Type your question..." />
+      <button id="send">Send</button>
+    </form>
+  </main>
+</div>
+<script>
+const form=document.getElementById("form"), input=document.getElementById("input"), messages=document.getElementById("messages"), send=document.getElementById("send");
+function add(text,who){const d=document.createElement("div");d.className="msg "+who;d.textContent=text;messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
+form.addEventListener("submit",async(e)=>{
+ e.preventDefault(); const text=input.value.trim(); if(!text)return;
+ add(text,"user"); input.value=""; send.disabled=true;
+ const loading=add("Thinking...","bot");
+ try{const r=await fetch("/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});const data=await r.json();loading.textContent=data.reply||"No response.";}
+ catch(err){loading.textContent="Connection error. Please try again.";}
+ finally{send.disabled=false;input.focus();}
+});
+</script>
+</body>
+</html>
